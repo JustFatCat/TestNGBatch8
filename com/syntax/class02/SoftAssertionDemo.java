@@ -1,20 +1,25 @@
-package com.syntax.class01;
+package com.syntax.class02;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
+import org.testng.Assert;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+import org.testng.asserts.SoftAssert;
 
 import java.util.concurrent.TimeUnit;
 
-public class LoginTest {
+public class SoftAssertionDemo {
+    //As an admin I should be able to login into HRMS
+        //logo is Displayed
+        //user is successfully logged in
     WebDriver driver;
     @BeforeMethod(alwaysRun = true)
-    public void openAndNavigate(){
+    public void navigateAndOpen(){
         System.setProperty("webdriver.chrome.driver", "drivers/chromedriver");
         ChromeOptions options = new ChromeOptions();
         options.addArguments("--disable-dev-shm-usage");
@@ -27,33 +32,33 @@ public class LoginTest {
         driver = new ChromeDriver(options);
         driver.get("http://hrmstest.syntaxtechs.net/humanresources/symfony/web/index.php/auth/login");
         driver.manage().window().maximize();
-        driver.manage().timeouts().implicitlyWait(15, TimeUnit.SECONDS);
+        driver.manage().timeouts().implicitlyWait(20, TimeUnit.SECONDS);
     }
     @Test(groups = "regression", alwaysRun = true)
-    public void validAdminLogin(){
-        driver.findElement(By.xpath("//input[@id = 'txtUsername']")).sendKeys("Admin");
+    public void logoAndValidLogin(){
+        //verifying that logo is displayed
+        WebElement syntaxLogo = driver.findElement(By.xpath("//img[contains(@src, 'humanresources')]"));
+        //creating an object of SoftAssertion class
+        SoftAssert softAssert = new SoftAssert();
+        softAssert.assertTrue(syntaxLogo.isDisplayed(), "Logo is not displayed");
+
+        //entering valid credentials to login
+        String userName = "Admin";
+        driver.findElement(By.xpath("//input[@id = 'txtUsername']")).sendKeys(userName);
         driver.findElement(By.xpath("//input[@id = 'txtPassword']")).sendKeys("Hum@nhrm123");
         driver.findElement(By.id("btnLogin")).click();
 
+        //validating that we are logged in
         WebElement welcome = driver.findElement(By.linkText("Welcome Admin"));
-        if (welcome.isDisplayed()){
-            System.out.println("Test pass");
-        }else {
-            System.out.println("Test fail");
-        }
+        softAssert.assertTrue(welcome.isDisplayed(), "Welcome message is not displayed");
+        softAssert.assertEquals(welcome.getText(), "Welcome " + userName, "Welcome test is not matching");
+        System.out.println("End of the test");
+        softAssert.assertAll();
     }
-    @Test(alwaysRun = true)
-    public void titleValidation(){
-        String expectedTitle = "Human Management System";
-        String actualTitle = driver.getTitle();
-        if(expectedTitle.equals(actualTitle)){
-            System.out.println("Title is valid. Test Passed");
-        }else {
-            System.out.println("Title is not matched. Test Failed");
-        }
-    }
+
     @AfterMethod(alwaysRun = true)
     public void closeBrowser(){
         driver.quit();
     }
+
 }

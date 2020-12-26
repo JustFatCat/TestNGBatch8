@@ -1,5 +1,6 @@
-package com.syntax.class01;
+package com.syntax.class02;
 
+import com.google.common.base.Verify;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -11,10 +12,19 @@ import org.testng.annotations.Test;
 
 import java.util.concurrent.TimeUnit;
 
-public class LoginTest {
+public class HW {
+    /*Open chrome browser
+    Go to “http://hrmstest.syntaxtechs.net/humanresources/symfony/web/index.php/auth/login”
+    Login into the application
+    Click on Add Employee
+    Verify labels: Full Name, Employee Id, Photograph are displayed
+    Provide Employee First and Last Name
+    Add a picture to the profile
+    Verify Employee has been added successfully
+    Close the browser*/
     WebDriver driver;
     @BeforeMethod(alwaysRun = true)
-    public void openAndNavigate(){
+    public void navigateAndOpen() {
         System.setProperty("webdriver.chrome.driver", "drivers/chromedriver");
         ChromeOptions options = new ChromeOptions();
         options.addArguments("--disable-dev-shm-usage");
@@ -27,33 +37,30 @@ public class LoginTest {
         driver = new ChromeDriver(options);
         driver.get("http://hrmstest.syntaxtechs.net/humanresources/symfony/web/index.php/auth/login");
         driver.manage().window().maximize();
-        driver.manage().timeouts().implicitlyWait(15, TimeUnit.SECONDS);
+        driver.manage().timeouts().implicitlyWait(20, TimeUnit.SECONDS);
     }
     @Test(groups = "regression", alwaysRun = true)
-    public void validAdminLogin(){
+    public void addEmployee() throws InterruptedException {
         driver.findElement(By.xpath("//input[@id = 'txtUsername']")).sendKeys("Admin");
         driver.findElement(By.xpath("//input[@id = 'txtPassword']")).sendKeys("Hum@nhrm123");
         driver.findElement(By.id("btnLogin")).click();
 
-        WebElement welcome = driver.findElement(By.linkText("Welcome Admin"));
-        if (welcome.isDisplayed()){
-            System.out.println("Test pass");
-        }else {
-            System.out.println("Test fail");
-        }
+        driver.findElement(By.id("menu_pim_viewPimModule")).click();
+        Thread.sleep(2000);
+        driver.findElement(By.id("menu_pim_addEmployee")).click();
+        Thread.sleep(2000);
+        WebElement fullName = driver.findElement(By.xpath("//label[@class = 'hasTopFieldHelp']"));
+        Thread.sleep(2000);
+        System.out.println(fullName.isDisplayed());
+
+
     }
-    @Test(alwaysRun = true)
-    public void titleValidation(){
-        String expectedTitle = "Human Management System";
-        String actualTitle = driver.getTitle();
-        if(expectedTitle.equals(actualTitle)){
-            System.out.println("Title is valid. Test Passed");
-        }else {
-            System.out.println("Title is not matched. Test Failed");
-        }
-    }
+
+
     @AfterMethod(alwaysRun = true)
     public void closeBrowser(){
         driver.quit();
     }
+
+
 }
